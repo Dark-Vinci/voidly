@@ -6,7 +6,7 @@ import { ErrorWrapper, If, IfElse } from '@components';
 
 interface props {
   name: string;
-} 
+}
 
 function Wrapped({ name }: props): JSX.Element {
   return (
