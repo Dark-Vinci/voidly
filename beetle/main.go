@@ -3,6 +3,9 @@ package main
 import (
 	"context"
 	"errors"
+	"fmt"
+	"github.com/joho/godotenv"
+	"log"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,6 +19,11 @@ import (
 )
 
 func main() {
+	err := godotenv.Load("../.env")
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
 	_ = os.Setenv("TZ", utils.TimeZone)
 	ctx := context.Background()
 
@@ -28,12 +36,15 @@ func main() {
 	h.Build(ctx)
 
 	server := &http.Server{
-		Addr:    e.Port,
+		Addr:    fmt.Sprintf(":%s", e.Port),
 		Handler: h.GetEngine(),
 	}
 
 	go func() {
-		if err := server.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
+		appLogger.Info().Msgf("server started on %s", e.Port)
+		err := server.ListenAndServe()
+
+		if err != nil && !errors.Is(err, http.ErrServerClosed) {
 			appLogger.Fatal().Err(err).Msg("failed to start server")
 		}
 	}()

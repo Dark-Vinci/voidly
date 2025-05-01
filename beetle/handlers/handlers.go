@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"context"
-
 	"github.com/gin-gonic/gin"
 	"github.com/rs/zerolog"
 
@@ -50,6 +49,7 @@ func (h *Handler) Build(ctx context.Context) {
 
 	// build endpoints for websocket
 	socket.New(ctx, *h.log, h.env, h.engine.Group("/socket"), h.app)
+
 }
 
 func (h *Handler) GetEngine() *gin.Engine {

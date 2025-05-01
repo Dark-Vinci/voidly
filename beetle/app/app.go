@@ -4,11 +4,14 @@ import (
 	"github.com/google/uuid"
 	"github.com/rs/zerolog"
 
+	"github.com/dark-vinci/stripchat/beetle/store/connection"
 	"github.com/dark-vinci/stripchat/beetle/store/dblayer"
 	"github.com/dark-vinci/stripchat/beetle/utils"
 	"github.com/dark-vinci/stripchat/beetle/utils/models"
 	"github.com/dark-vinci/stripchat/beetle/utils/models/db"
 )
+
+const packageName = "beetle.app"
 
 type Operation interface {
 	Dummy(ctx models.CTX, payload string) string
@@ -33,11 +36,28 @@ type App struct {
 	chatStore    dblayer.ChatStore
 	logger       *zerolog.Logger
 	env          *utils.Environment
-	redis        *utils.Client
+	redis        utils.Redis
+	store        *connection.Store
 }
 
 func New(z *zerolog.Logger, e *utils.Environment) *Operation {
-	app := &App{}
+	log := z.With().Str(utils.PackageStrHelper, packageName).Logger()
+
+	store := connection.NewStore(log, e)
+
+	messageStore := dblayer.NewMessage(store)
+	chatStore := dblayer.NewChat(store)
+	userStore := dblayer.NewUser(store)
+
+	red := utils.NewRedis(&log, e.RedisURL, e.RedisPassword, e.RedisPassword)
+
+	app := &App{
+		store:        store,
+		messageStore: *messageStore,
+		chatStore:    *chatStore,
+		userStore:    *userStore,
+		redis:        *red,
+	}
 
 	result := Operation(app)
 

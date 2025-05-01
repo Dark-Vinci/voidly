@@ -71,40 +71,42 @@ func (h *Hub) Start() {
 		}
 	}()
 
-	for {
-		select {
+	go func() {
+		for {
+			select {
 
-		// register a client
-		case client := <-h.Register:
-			h.Clients[client.UserID] = client
+			// register a client
+			case client := <-h.Register:
+				h.Clients[client.UserID] = client
 
-			//delete a client
-		case client := <-h.Unregister:
-			if _, ok := h.Clients[client.UserID]; ok {
-				delete(h.Clients, client.UserID)
-				close(client.Send)
-			}
-
-			// write to client
-		case message := <-h.Broadcast:
-			// broadcast to other servers
-			go func() {
-				// todo: retry -> MESSAGE MUST BE SENT, TRY AS MANY TIMES AS POSSIBLE
-				_ = h.redis.Broadcast(context.Background(), "redis-key", message)
-			}()
-
-			// todo: add go routine
-			for _, client := range h.Clients {
-				select {
-				case client.Send <- message:
-					//todo: log the info
-					h.logger.Info().Msg("message received from client")
-				default:
-					// if we cant send, close the send channel and delete client
-					close(client.Send)
+				//delete a client
+			case client := <-h.Unregister:
+				if _, ok := h.Clients[client.UserID]; ok {
 					delete(h.Clients, client.UserID)
+					close(client.Send)
+				}
+
+				// write to client
+			case message := <-h.Broadcast:
+				// broadcast to other servers
+				go func() {
+					// todo: retry -> MESSAGE MUST BE SENT, TRY AS MANY TIMES AS POSSIBLE
+					_ = h.redis.Broadcast(context.Background(), "redis-key", message)
+				}()
+
+				// todo: add go routine
+				for _, client := range h.Clients {
+					select {
+					case client.Send <- message:
+						//todo: log the info
+						h.logger.Info().Msg("message received from client")
+					default:
+						// if we cant send, close the send channel and delete client
+						close(client.Send)
+						delete(h.Clients, client.UserID)
+					}
 				}
 			}
 		}
-	}
+	}()
 }

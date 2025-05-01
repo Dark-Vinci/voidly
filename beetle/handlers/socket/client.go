@@ -39,6 +39,8 @@ func (c *Client) WritePump() {
 		_ = c.Conn.Close()
 	}()
 
+	_ = c.Conn.WriteMessage(websocket.TextMessage, []byte("connected to the server"))
+
 	for {
 		select {
 		case message, ok := <-c.Send:

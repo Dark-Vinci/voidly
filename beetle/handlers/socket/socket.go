@@ -2,6 +2,7 @@ package socket
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -27,7 +28,11 @@ func New(ctx context.Context, log zerolog.Logger, e *utils.Environment, r *gin.R
 		logger: logger,
 	}
 
+	//fmt.Println("***FINISH BUILDING SOCKET HANDLER***")
+
 	ws.Build(r)
+
+	fmt.Println("***FINISH BUILDING SOCKET HANDLER***")
 }
 
 type WebSocket struct {

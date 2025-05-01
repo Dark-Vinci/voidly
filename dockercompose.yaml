@@ -1,5 +1,18 @@
 version: '3.1'
 
 services:
-  backer:
-    
+  redis:
+    build: ./redis
+    ports:
+      - "6309:6309"
+
+  postgres:
+    build: ./postgres
+    volumes:
+      - ./postgres/pgdata:/pgdata
+    ports:
+      - "5420:5432"
+    environment:
+      - POSTGRES_USER=docker
+      - POSTGRES_PASSWORD=docker
+      - PGDATA=/pgdata
