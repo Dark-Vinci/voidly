@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/joho/godotenv"
 	"log"
 	"net/http"
 	"os"
@@ -12,6 +11,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/joho/godotenv"
 	"github.com/rs/zerolog"
 
 	"github.com/dark-vinci/stripchat/beetle/handlers"
