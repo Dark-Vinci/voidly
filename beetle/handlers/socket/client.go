@@ -39,6 +39,8 @@ func (c *Client) WritePump() {
 		_ = c.Conn.Close()
 	}()
 
+	//res, err := c.Hub.app.GetUserChats(context.Background(), )
+
 	_ = c.Conn.WriteMessage(websocket.TextMessage, []byte("connected to the server"))
 
 	for {

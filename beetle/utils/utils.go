@@ -1,12 +1,16 @@
 package utils
 
-import "context"
+import (
+	"context"
+	"fmt"
+)
 
 const packageName = "packageName"
 
 func GetRequestID(c context.Context) string {
-	if val := c.Value("requestID"); val != nil {
-		return val.(string)
+	fmt.Println(c.Value("X-Request-ID"))
+	if val, ok := c.Value("X-Request-ID").(string); ok {
+		return val
 	}
 
 	return ""

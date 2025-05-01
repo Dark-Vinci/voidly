@@ -31,7 +31,7 @@ func (a *App) CreateAccount(ctx models.CTX, payload models.CreateAccountPayload)
 
 	user := db.User{
 		ID:        uuid.New(),
-		UserName:  payload.Username,
+		Username:  payload.Username,
 		Email:     payload.Email,
 		Password:  string(hashedPassword),
 		CreatedAt: time.Now(),

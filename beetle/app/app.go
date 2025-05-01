@@ -52,6 +52,7 @@ func New(z *zerolog.Logger, e *utils.Environment) *Operation {
 	red := utils.NewRedis(&log, e.RedisURL, e.RedisPassword, e.RedisPassword)
 
 	app := &App{
+		logger:       &log,
 		store:        store,
 		messageStore: *messageStore,
 		chatStore:    *chatStore,

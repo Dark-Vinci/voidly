@@ -20,6 +20,8 @@ func (a *authApi) login() gin.HandlerFunc {
 			endpoint  = ctx.FullPath()
 		)
 
+		c.Context = ctx.Request.Context()
+
 		log := a.z.With().Str(utils.LogEndpointLevel, endpoint).
 			Str(utils.RequestID, requestID.String()).Logger()
 
@@ -60,12 +62,16 @@ func (a *authApi) login() gin.HandlerFunc {
 func (a *authApi) create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
-			c         models.CTX //todo; update this
-			payload   models.CreateAccountPayload
-			err       error
-			requestID = uuid.New()
-			endpoint  = ctx.FullPath()
+			c        models.CTX //todo; update this
+			payload  models.CreateAccountPayload
+			err      error
+			rID      = utils.GetRequestID(ctx.Request.Context())
+			endpoint = ctx.FullPath()
 		)
+
+		c.Context = ctx.Request.Context()
+
+		requestID, _ := uuid.Parse(rID)
 
 		log := a.z.With().Str(utils.LogEndpointLevel, endpoint).
 			Str(utils.RequestID, requestID.String()).Logger()

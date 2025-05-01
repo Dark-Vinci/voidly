@@ -22,6 +22,20 @@ type Handler struct {
 	engine     *gin.Engine
 }
 
+//const RequestIDKey = "X-Request-ID"
+//
+//func RequestID() gin.HandlerFunc {
+//	return func(c *gin.Context) {
+//		reqID := uuid.New().String()
+//
+//		// Set the request ID in context and header
+//		c.Set(RequestIDKey, reqID)
+//		c.Writer.Header().Set(RequestIDKey, reqID)
+//
+//		c.Next()
+//	}
+//}
+
 func New(e *utils.Environment, log zerolog.Logger) *Handler {
 	a := app.New(&log, e)
 
@@ -42,7 +56,7 @@ func New(e *utils.Environment, log zerolog.Logger) *Handler {
 func (h *Handler) Build(ctx context.Context) {
 	gin.ForceConsoleColor()
 
-	h.engine.Use(h.middleware.Cors())
+	h.engine.Use(h.middleware.Cors(), h.middleware.RequestID())
 
 	// build endpoints for REST API
 	rest.Build(h.engine.Group("/api"), h.app, h.log, h.env)

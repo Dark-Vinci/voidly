@@ -15,7 +15,7 @@ type Chat struct {
 
 type User struct {
 	ID        uuid.UUID `json:"id"`
-	UserName  string
+	Username  string
 	Email     string
 	Password  string
 	CreatedAt time.Time
