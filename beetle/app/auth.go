@@ -18,7 +18,7 @@ func (a *App) GetUserByID(ctx models.CTX, userID uuid.UUID) (*db.User, error) {
 		Logger()
 
 	user, err := a.userStore.GetByID(ctx.Context, userID)
-	if err == nil {
+	if err != nil {
 		log.Err(utils.ErrorAlreadyExist).Msg("User not found")
 		return nil, utils.NotFound
 	}
@@ -29,7 +29,7 @@ func (a *App) GetUserByID(ctx models.CTX, userID uuid.UUID) (*db.User, error) {
 func (a *App) CreateAccount(ctx models.CTX, payload models.CreateAccountPayload) (*db.User, error) {
 	log := a.logger.With().
 		Str(utils.MethodStrHelper, "app.CreateAccount").
-		Str(utils.RequestID, utils.GetRequestID(ctx.Context)).
+		Str(utils.RequestID, ctx.RequestID.String()).
 		Logger()
 
 	_, err := a.userStore.GetByEmail(ctx.Context, payload.Email)
@@ -61,7 +61,7 @@ func (a *App) CreateAccount(ctx models.CTX, payload models.CreateAccountPayload)
 	return response, nil
 }
 
-func (a *App) LoginToAccount(ctx models.CTX, payload models.LoginPayload) error {
+func (a *App) LoginToAccount(ctx models.CTX, payload models.LoginPayload) (*uuid.UUID, error) {
 	log := a.logger.With().
 		Str(utils.MethodStrHelper, "app.LoginToAccount").
 		Str(utils.RequestID, utils.GetRequestID(ctx.Context)).
@@ -70,15 +70,15 @@ func (a *App) LoginToAccount(ctx models.CTX, payload models.LoginPayload) error 
 	user, err := a.userStore.GetByEmail(ctx.Context, payload.Email)
 	if err != nil {
 		log.Err(utils.NotFound).Msg("User not found")
-		return utils.NotFound
+		return nil, utils.NotFound
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(payload.Password)); err != nil {
 		log.Err(utils.InvalidCredentials).Msg("invalid credentials")
-		return utils.InvalidCredentials
+		return nil, utils.InvalidCredentials
 	}
 
-	return nil
+	return &user.ID, nil
 }
 
 func (a *App) DeleteAccount(ctx models.CTX, userID uuid.UUID) error {

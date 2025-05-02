@@ -10,7 +10,7 @@ import (
 
 func (m *Middleware) ZeroUserContext() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		id, _ := c.Get(RequestIDKey)
+		id, _ := c.Get(utils.RequestIDKey)
 
 		requestID, err := uuid.Parse(id.(string))
 

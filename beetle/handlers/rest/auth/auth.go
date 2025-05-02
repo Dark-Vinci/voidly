@@ -28,7 +28,7 @@ func New(eng *gin.RouterGroup, ap app.Operation, m *middleware.Middleware, e *ut
 		z: &logger,
 	}
 
-	authGroup := eng.Group("/auth", m.ZeroUserContext())
+	authGroup := eng.Group("/auth", m.RequestID(), m.ZeroUserContext())
 
 	authGroup.POST("/login", a.login())
 	authGroup.POST("/create", a.create())

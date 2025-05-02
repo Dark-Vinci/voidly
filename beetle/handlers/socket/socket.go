@@ -2,7 +2,6 @@ package socket
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
@@ -10,6 +9,7 @@ import (
 	"github.com/rs/zerolog"
 
 	"github.com/dark-vinci/stripchat/beetle/app"
+	"github.com/dark-vinci/stripchat/beetle/middleware"
 	"github.com/dark-vinci/stripchat/beetle/utils"
 )
 
@@ -24,27 +24,25 @@ func New(ctx context.Context, log zerolog.Logger, e *utils.Environment, r *gin.R
 			ReadBufferSize:  1024,
 			WriteBufferSize: 1024,
 		},
-		Hub:    hub,
-		logger: logger,
+		Hub:        hub,
+		logger:     logger,
+		middleware: middleware.New(&logger, e, a),
 	}
 
-	//fmt.Println("***FINISH BUILDING SOCKET HANDLER***")
-
 	ws.Build(r)
-
-	fmt.Println("***FINISH BUILDING SOCKET HANDLER***")
 }
 
 type WebSocket struct {
-	upgrade websocket.Upgrader
-	Hub     *Hub
-	logger  zerolog.Logger
+	upgrade    websocket.Upgrader
+	Hub        *Hub
+	logger     zerolog.Logger
+	middleware *middleware.Middleware
 }
 
 func (ws *WebSocket) Build(endpoint *gin.RouterGroup) {
 	ws.Hub.Start()
 
-	endpoint.GET("/ws", func(c *gin.Context) {
+	endpoint.GET("/ws", ws.middleware.Authenticate(), func(c *gin.Context) {
 		ws.serveWs(ws.Hub, c.Writer, c.Request)
 	})
 }

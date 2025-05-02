@@ -3,9 +3,11 @@ package auth
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+
+	"github.com/dark-vinci/stripchat/beetle/middleware"
 	"github.com/dark-vinci/stripchat/beetle/utils"
 	"github.com/dark-vinci/stripchat/beetle/utils/models"
-	"github.com/gin-gonic/gin"
 )
 
 func (a *authApi) login() gin.HandlerFunc {
@@ -16,7 +18,7 @@ func (a *authApi) login() gin.HandlerFunc {
 			endpoint = ctx.FullPath()
 		)
 
-		c := utils.GetFromContext[models.CTX](ctx.Request.Context(), utils.CTX)
+		c := utils.GetContext(ctx)
 
 		log := a.z.With().Str(utils.LogEndpointLevel, endpoint).
 			Str(utils.RequestID, c.RequestID.String()).Logger()
@@ -32,7 +34,8 @@ func (a *authApi) login() gin.HandlerFunc {
 			return
 		}
 
-		if err = a.a.LoginToAccount(c, payload); err != nil {
+		userID, err := a.a.LoginToAccount(c, payload)
+		if err != nil {
 			log.Err(err).Msg("Invalid credentials")
 			utils.ErrorResponse(ctx, http.StatusUnauthorized, utils.ErrorData{
 				ID:      c.RequestID,
@@ -43,12 +46,20 @@ func (a *authApi) login() gin.HandlerFunc {
 			return
 		}
 
-		cred := a.m.GenerateCredentials()
+		cred, err := a.m.CreateToken(ctx, userID.String())
+		if err != nil {
+			log.Err(err).Msg("unable to generate login token")
+			utils.ErrorResponse(ctx, http.StatusBadGateway, utils.ErrorData{
+				ID:      c.RequestID,
+				Details: err.Error(),
+				Status:  http.StatusBadGateway,
+			})
+		}
 
 		response := struct {
-			Token string `json:"token"`
+			Token middleware.Tokens `json:"token"`
 		}{
-			Token: cred,
+			Token: *cred,
 		}
 
 		utils.OkResponse(ctx, http.StatusCreated, "user login token generated", response)
@@ -63,7 +74,7 @@ func (a *authApi) create() gin.HandlerFunc {
 			endpoint = ctx.FullPath()
 		)
 
-		c := utils.GetFromContext[models.CTX](ctx.Request.Context(), utils.CTX)
+		c := utils.GetContext(ctx)
 
 		log := a.z.With().Str(utils.LogEndpointLevel, endpoint).
 			Str(utils.RequestID, c.RequestID.String()).Logger()

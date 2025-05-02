@@ -28,7 +28,7 @@ func New(eng *gin.RouterGroup, ap app.Operation, m *middleware.Middleware, e *ut
 		z: &logger,
 	}
 
-	messageGroup := eng.Group("/message", mApi.m.Authenticate())
+	messageGroup := eng.Group("/message", mApi.m.RequestID(), mApi.m.Authenticate())
 
 	messageGroup.POST("/", mApi.create())
 	messageGroup.GET("/:chat_id", mApi.list())

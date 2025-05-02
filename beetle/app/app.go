@@ -16,12 +16,11 @@ const packageName = "beetle.app"
 type Operation interface {
 	Dummy(ctx models.CTX, payload string) string
 
-	GetUserByID(ctx models.CTX, userID uuid.UUID) (*db.User, error)
-
-	// auth
+	// auth & user
 	CreateAccount(ctx models.CTX, payload models.CreateAccountPayload) (*db.User, error)
-	LoginToAccount(ctx models.CTX, payload models.LoginPayload) error
+	LoginToAccount(ctx models.CTX, payload models.LoginPayload) (*uuid.UUID, error)
 	DeleteAccount(ctx models.CTX, userID uuid.UUID) error
+	GetUserByID(ctx models.CTX, userID uuid.UUID) (*db.User, error)
 
 	// message
 	CreateMessage(ctx models.CTX, payload models.CreateMessagePayload) (*db.Message, error)

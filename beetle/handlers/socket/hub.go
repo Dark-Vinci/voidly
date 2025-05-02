@@ -52,7 +52,7 @@ func (h *Hub) Start() {
 	go func() {
 		b := make(chan []byte)
 
-		h.redis.Subscribe(context.Background(), utils.WebsocketChannel, b)
+		h.redis.Subscribe(context.Background(), "message", b)
 
 		for {
 			select {
@@ -64,9 +64,9 @@ func (h *Hub) Start() {
 				}
 
 				// ignore message sent by the same server
-				if c.Server != h.ServerName.String() && len(c.Server) != 0 {
-					h.Broadcast <- msg
-				}
+				//if c.Server != h.ServerName.String() && len(c.Server) != 0 {
+				h.Broadcast <- msg
+				//}
 			}
 		}
 	}()

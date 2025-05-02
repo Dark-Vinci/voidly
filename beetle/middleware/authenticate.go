@@ -92,6 +92,7 @@ func (m *Middleware) Authenticate() gin.HandlerFunc {
 				Handler: packageName,
 				Details: err.Error(),
 			})
+			return
 		}
 
 		parseUserID, _ := uuid.Parse(userID)
@@ -116,6 +117,7 @@ func (m *Middleware) Authenticate() gin.HandlerFunc {
 				Handler: packageName,
 				Details: err.Error(),
 			})
+			return
 		}
 
 		ctx.RequestID = rID

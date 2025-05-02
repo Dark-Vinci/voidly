@@ -22,12 +22,16 @@ type Client struct {
 }
 
 func NewClient(hub *Hub, conn *websocket.Conn, logger zerolog.Logger) *Client {
-	return &Client{
+	client := &Client{
 		logger: logger,
 		Hub:    hub,
 		Conn:   conn,
 		Send:   make(chan []byte, 256),
 	}
+
+	hub.Register <- client
+
+	return client
 }
 
 // WritePump write to the client
@@ -38,8 +42,6 @@ func (c *Client) WritePump() {
 		ticker.Stop()
 		_ = c.Conn.Close()
 	}()
-
-	//res, err := c.Hub.app.GetUserChats(context.Background(), )
 
 	_ = c.Conn.WriteMessage(websocket.TextMessage, []byte("connected to the server"))
 

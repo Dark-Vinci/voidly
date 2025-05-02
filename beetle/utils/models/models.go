@@ -16,7 +16,7 @@ type LoginPayload struct {
 type CreateMessagePayload struct {
 	Content string    `json:"content"`
 	ChatID  uuid.UUID `json:"chat_id"`
-	UserID  uuid.UUID `json:"user_id"`
+	//UserID  uuid.UUID `json:"user_id"`
 }
 
 type CreateChatPayload struct {

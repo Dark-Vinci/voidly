@@ -7,8 +7,6 @@ import (
 	"github.com/rs/zerolog"
 )
 
-//const packageName = "util.redis"
-
 type Client struct {
 	Val *redis.Client
 }

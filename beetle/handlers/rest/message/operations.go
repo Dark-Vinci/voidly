@@ -13,22 +13,22 @@ import (
 func (m *messageApi) list() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
-			ct         models.CTX //todo; update this
 			chatID     = ctx.Query("chat_id")
 			err        error
-			requestID  = uuid.New()
 			endpoint   = ctx.FullPath()
 			pagination models.Pagination
 		)
 
+		c := utils.GetContext(ctx)
+
 		log := m.z.With().Str(utils.LogEndpointLevel, endpoint).
-			Str(utils.RequestID, requestID.String()).Logger()
+			Str(utils.RequestID, c.RequestID.String()).Logger()
 
 		cID, err := uuid.Parse(chatID)
 		if err != nil {
 			log.Err(err).Msg("Invalid uuid")
 			utils.ErrorResponse(ctx, http.StatusUnprocessableEntity, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusUnprocessableEntity,
 			})
@@ -36,11 +36,11 @@ func (m *messageApi) list() gin.HandlerFunc {
 			return
 		}
 
-		messages, err := m.a.GetChatMessages(ct, cID, pagination)
+		messages, err := m.a.GetChatMessages(c, cID, pagination)
 		if err != nil {
 			log.Err(err).Msg("something went wrong")
 			utils.ErrorResponse(ctx, http.StatusBadGateway, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusBadGateway,
 			})
@@ -55,20 +55,22 @@ func (m *messageApi) list() gin.HandlerFunc {
 func (m *messageApi) create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
-			ct        models.CTX //todo; update this
-			payload   models.CreateMessagePayload
-			err       error
-			requestID = uuid.New()
-			endpoint  = ctx.FullPath()
+			//ct        models.CTX //todo; update this
+			payload models.CreateMessagePayload
+			err     error
+			//requestID = uuid.New()
+			endpoint = ctx.FullPath()
 		)
 
+		c := utils.GetContext(ctx)
+
 		log := m.z.With().Str(utils.LogEndpointLevel, endpoint).
-			Str(utils.RequestID, requestID.String()).Logger()
+			Str(utils.RequestID, c.RequestID.String()).Logger()
 
 		if err = ctx.ShouldBind(&payload); err != nil {
 			log.Err(err).Msg("bad request")
 			utils.ErrorResponse(ctx, http.StatusBadRequest, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusBadRequest,
 			})
@@ -76,11 +78,11 @@ func (m *messageApi) create() gin.HandlerFunc {
 			return
 		}
 
-		chat, err := m.a.CreateMessage(ct, payload)
+		chat, err := m.a.CreateMessage(c, payload)
 		if err != nil {
 			log.Err(err).Msg("Invalid credentials")
 			utils.ErrorResponse(ctx, http.StatusBadGateway, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusBadGateway,
 			})

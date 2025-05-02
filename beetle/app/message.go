@@ -22,7 +22,7 @@ func (a *App) CreateMessage(ctx models.CTX, payload models.CreateMessagePayload)
 		ID:         uuid.New(),
 		Content:    payload.Content,
 		ChatID:     payload.ChatID,
-		FromUserID: payload.UserID,
+		FromUserID: ctx.UserID,
 		CreatedAt:  time.Now(),
 	}
 
