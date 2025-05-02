@@ -16,10 +16,14 @@ func (c *chatsApi) getChatList() gin.HandlerFunc {
 			ct         models.CTX //todo; update this
 			userID     = ctx.Query("user_id")
 			err        error
-			requestID  = uuid.New()
+			rID        = utils.GetRequestID(ctx.Request.Context())
 			endpoint   = ctx.FullPath()
 			pagination models.Pagination
 		)
+
+		ct.Context = ctx.Request.Context()
+
+		requestID, _ := uuid.Parse(rID)
 
 		log := c.z.With().Str(utils.LogEndpointLevel, endpoint).
 			Str(utils.RequestID, requestID.String()).Logger()
@@ -55,12 +59,16 @@ func (c *chatsApi) getChatList() gin.HandlerFunc {
 func (c *chatsApi) createChat() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
-			ct        models.CTX //todo; update this
-			payload   models.CreateChatPayload
-			err       error
-			requestID = uuid.New()
-			endpoint  = ctx.FullPath()
+			ct       models.CTX //todo; update this
+			payload  models.CreateChatPayload
+			err      error
+			rID      = utils.GetRequestID(ctx.Request.Context())
+			endpoint = ctx.FullPath()
 		)
+
+		ct.Context = ctx.Request.Context()
+
+		requestID, _ := uuid.Parse(rID)
 
 		log := c.z.With().Str(utils.LogEndpointLevel, endpoint).
 			Str(utils.RequestID, requestID.String()).Logger()

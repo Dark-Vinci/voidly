@@ -3,25 +3,25 @@ package models
 import "github.com/google/uuid"
 
 type CreateAccountPayload struct {
-	Username string
-	Email    string
-	Password string
+	Username string `json:"username"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type LoginPayload struct {
-	Email    string
-	Password string
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type CreateMessagePayload struct {
-	Content string
-	ChatID  uuid.UUID
-	UserID  uuid.UUID
+	Content string    `json:"content"`
+	ChatID  uuid.UUID `json:"chat_id"`
+	UserID  uuid.UUID `json:"user_id"`
 }
 
 type CreateChatPayload struct {
-	UserA uuid.UUID
-	UserB uuid.UUID
+	UserA uuid.UUID `json:"user_a"`
+	UserB uuid.UUID `json:"user_b"`
 }
 
 type UserPayload struct {
@@ -30,12 +30,12 @@ type UserPayload struct {
 }
 
 type Paginated[T any] struct {
-	hasNextPage bool
-	hasPrevPage bool
-	totalCount  int64
-	pageSize    int64
-	pageNumber  int64
-	payload     T
+	hasNextPage bool  `json:"has_next_page"`
+	hasPrevPage bool  `json:"has_prev_page"`
+	totalCount  int64 `json:"total_count"`
+	pageSize    int64 `json:"page_size"`
+	pageNumber  int64 `json:"page_number"`
+	payload     T     `json:"payload"`
 }
 
 func NewPaginated[T any](p Pagination, payload T) *Paginated[T] {

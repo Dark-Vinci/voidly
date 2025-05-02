@@ -12,6 +12,8 @@ type Environment struct {
 	DbName        string
 	DbUsername    string
 	Port          string
+	JWTKey        string
+	JWTExpiration int
 }
 
 func NewEnv() *Environment {
@@ -26,6 +28,7 @@ func NewEnv() *Environment {
 	redisURL := os.Getenv("REDIS_URL")
 	redisPassword := os.Getenv("REDIS_PASSWORD")
 	redisUsername := os.Getenv("DB_USERNAME")
+	jWTKey := os.Getenv("JWT_KEY")
 
 	return &Environment{
 		DbHost:        dbHost,
@@ -37,5 +40,7 @@ func NewEnv() *Environment {
 		RedisURL:      redisURL,
 		RedisPassword: redisPassword,
 		RedisUsername: redisUsername,
+		JWTKey:        jWTKey,
+		JWTExpiration: 10,
 	}
 }

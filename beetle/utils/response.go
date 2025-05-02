@@ -8,7 +8,8 @@ import (
 type ErrorData struct {
 	ID      uuid.UUID `json:"id"`
 	Details string    `json:"details"`
-	Status  int
+	Status  int       `json:"status"`
+	Handler string    `json:"handler" omitempty`
 }
 
 func getStringPointer(val string) *string {

@@ -3,32 +3,28 @@ package auth
 import (
 	"net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-
 	"github.com/dark-vinci/stripchat/beetle/utils"
 	"github.com/dark-vinci/stripchat/beetle/utils/models"
+	"github.com/gin-gonic/gin"
 )
 
 func (a *authApi) login() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
-			c         models.CTX //todo; update this
-			payload   models.LoginPayload
-			err       error
-			requestID = uuid.New()
-			endpoint  = ctx.FullPath()
+			payload  models.LoginPayload
+			err      error
+			endpoint = ctx.FullPath()
 		)
 
-		c.Context = ctx.Request.Context()
+		c := utils.GetFromContext[models.CTX](ctx.Request.Context(), utils.CTX)
 
 		log := a.z.With().Str(utils.LogEndpointLevel, endpoint).
-			Str(utils.RequestID, requestID.String()).Logger()
+			Str(utils.RequestID, c.RequestID.String()).Logger()
 
 		if err = ctx.ShouldBind(&payload); err != nil {
 			log.Err(err).Msg("bad request")
 			utils.ErrorResponse(ctx, http.StatusBadRequest, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusBadRequest,
 			})
@@ -39,7 +35,7 @@ func (a *authApi) login() gin.HandlerFunc {
 		if err = a.a.LoginToAccount(c, payload); err != nil {
 			log.Err(err).Msg("Invalid credentials")
 			utils.ErrorResponse(ctx, http.StatusUnauthorized, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusUnauthorized,
 			})
@@ -62,24 +58,20 @@ func (a *authApi) login() gin.HandlerFunc {
 func (a *authApi) create() gin.HandlerFunc {
 	return func(ctx *gin.Context) {
 		var (
-			c        models.CTX //todo; update this
 			payload  models.CreateAccountPayload
 			err      error
-			rID      = utils.GetRequestID(ctx.Request.Context())
 			endpoint = ctx.FullPath()
 		)
 
-		c.Context = ctx.Request.Context()
-
-		requestID, _ := uuid.Parse(rID)
+		c := utils.GetFromContext[models.CTX](ctx.Request.Context(), utils.CTX)
 
 		log := a.z.With().Str(utils.LogEndpointLevel, endpoint).
-			Str(utils.RequestID, requestID.String()).Logger()
+			Str(utils.RequestID, c.RequestID.String()).Logger()
 
 		if err = ctx.ShouldBind(&payload); err != nil {
 			log.Err(err).Msg("bad request")
 			utils.ErrorResponse(ctx, http.StatusBadRequest, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusBadRequest,
 			})
@@ -91,7 +83,7 @@ func (a *authApi) create() gin.HandlerFunc {
 		if err != nil {
 			log.Err(err).Msg("bad request")
 			utils.ErrorResponse(ctx, http.StatusBadRequest, utils.ErrorData{
-				ID:      requestID,
+				ID:      c.RequestID,
 				Details: err.Error(),
 				Status:  http.StatusBadRequest,
 			})

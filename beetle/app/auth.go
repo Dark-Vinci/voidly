@@ -11,6 +11,21 @@ import (
 	"github.com/dark-vinci/stripchat/beetle/utils/models/db"
 )
 
+func (a *App) GetUserByID(ctx models.CTX, userID uuid.UUID) (*db.User, error) {
+	log := a.logger.With().
+		Str(utils.MethodStrHelper, "app.GetUserByID").
+		Str(utils.RequestID, utils.GetRequestID(ctx.Context)).
+		Logger()
+
+	user, err := a.userStore.GetByID(ctx.Context, userID)
+	if err == nil {
+		log.Err(utils.ErrorAlreadyExist).Msg("User not found")
+		return nil, utils.NotFound
+	}
+
+	return user, nil
+}
+
 func (a *App) CreateAccount(ctx models.CTX, payload models.CreateAccountPayload) (*db.User, error) {
 	log := a.logger.With().
 		Str(utils.MethodStrHelper, "app.CreateAccount").

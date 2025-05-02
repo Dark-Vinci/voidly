@@ -15,3 +15,13 @@ func GetRequestID(c context.Context) string {
 
 	return ""
 }
+
+func GetFromContext[T any](c context.Context, key string) T {
+	if val, ok := c.Value(key).(T); ok {
+		return val
+	}
+
+	var zero T
+
+	return zero
+}

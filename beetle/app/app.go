@@ -16,6 +16,8 @@ const packageName = "beetle.app"
 type Operation interface {
 	Dummy(ctx models.CTX, payload string) string
 
+	GetUserByID(ctx models.CTX, userID uuid.UUID) (*db.User, error)
+
 	// auth
 	CreateAccount(ctx models.CTX, payload models.CreateAccountPayload) (*db.User, error)
 	LoginToAccount(ctx models.CTX, payload models.LoginPayload) error
