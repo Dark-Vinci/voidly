@@ -2,7 +2,6 @@ package utils
 
 import (
 	"context"
-	"fmt"
 	"github.com/dark-vinci/stripchat/beetle/utils/models"
 	"github.com/gin-gonic/gin"
 )
@@ -10,7 +9,6 @@ import (
 const packageName = "packageName"
 
 func GetRequestID(c context.Context) string {
-	fmt.Println(c.Value("X-Request-ID"))
 	if val, ok := c.Value(RequestIDKey).(string); ok {
 		return val
 	}
@@ -22,8 +20,6 @@ func GetFromContext[T any](c context.Context, key string) T {
 	if val, ok := c.Value(key).(T); ok {
 		return val
 	}
-
-	fmt.Println("--------------zero context---------------------")
 
 	var zero T
 

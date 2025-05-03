@@ -32,7 +32,6 @@ func (a *App) CreateMessage(ctx models.CTX, payload models.CreateMessagePayload)
 		return nil, utils.UnableToInsert
 	}
 
-	// todo; push to message broker
 	if err = a.publish(ctx.Context, *res); err != nil {
 		log.Err(err).Msg("Failed to publish a message")
 		return nil, utils.UnableToInsert

@@ -1,7 +1,7 @@
 package utils
 
 const PackageStrHelper = "packageName"
-const WebsocketChannel = "webSocketChannel"
+const WebsocketMessageChannel = "message-channel"
 const FunctionNameHelper = "functionNameHelper"
 const MethodStrHelper = "methodStrHelper"
 const LogEndpointLevel = "logEndpointLevel"

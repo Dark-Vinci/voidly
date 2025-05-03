@@ -29,8 +29,6 @@ func (a *App) CreateChat(ctx models.CTX, payload models.CreateChatPayload) (*db.
 		return nil, utils.NotFound
 	}
 
-	// todo; publish to redis for any interested consumer
-
 	return c, err
 }
 

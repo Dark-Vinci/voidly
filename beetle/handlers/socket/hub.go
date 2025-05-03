@@ -11,6 +11,7 @@ import (
 	"github.com/dark-vinci/stripchat/beetle/app"
 	"github.com/dark-vinci/stripchat/beetle/utils"
 	"github.com/dark-vinci/stripchat/beetle/utils/models"
+	"github.com/dark-vinci/stripchat/beetle/utils/models/db"
 )
 
 type Hub struct {
@@ -52,7 +53,7 @@ func (h *Hub) Start() {
 	go func() {
 		b := make(chan []byte)
 
-		h.redis.Subscribe(context.Background(), "message", b)
+		h.redis.Subscribe(context.Background(), utils.WebsocketMessageChannel, b)
 
 		for {
 			select {
@@ -64,9 +65,7 @@ func (h *Hub) Start() {
 				}
 
 				// ignore message sent by the same server
-				//if c.Server != h.ServerName.String() && len(c.Server) != 0 {
 				h.Broadcast <- msg
-				//}
 			}
 		}
 	}()
@@ -74,32 +73,30 @@ func (h *Hub) Start() {
 	go func() {
 		for {
 			select {
-
 			// register a client
 			case client := <-h.Register:
 				h.Clients[client.UserID] = client
 
-				//delete a client
+			//delete a client
 			case client := <-h.Unregister:
 				if _, ok := h.Clients[client.UserID]; ok {
 					delete(h.Clients, client.UserID)
 					close(client.Send)
 				}
 
-				// write to client
+			// write to a client
 			case message := <-h.Broadcast:
-				// broadcast to other servers
-				go func() {
-					// todo: retry -> MESSAGE MUST BE SENT, TRY AS MANY TIMES AS POSSIBLE
-					_ = h.redis.Broadcast(context.Background(), "redis-key", message)
-				}()
+				var m db.Message
 
-				// todo: add go routine
-				for _, client := range h.Clients {
+				if err := json.Unmarshal(message, &m); err != nil {
+					h.logger.Err(err).Msg("Error unmarshalling message")
+					continue
+				}
+
+				if client, ok := h.Clients[m.ChatID.String()]; ok {
 					select {
 					case client.Send <- message:
-						//todo: log the info
-						h.logger.Info().Msg("message received from client")
+						h.logger.Info().Msg("message sent to client")
 					default:
 						// if we cant send, close the send channel and delete client
 						close(client.Send)
